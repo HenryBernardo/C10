@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel · Cidade 10</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#0f1113" />
+  <link rel="icon" href="/img/c10.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <style>
+    /* Mesmo layout do painel da barbearia, com a cor do Cidade 10. */
+    :root { --gold: #14b8a6; --gold-2: #5eead4; --gold-ink: #04201d; }
+    h1, h2, h3, .brand { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; letter-spacing: -0.3px; }
+    .brand b { color: var(--gold-2); }
+    .city-select { padding: 0 6px; }
+    .city-select select { padding: 8px 10px; }
+    .city-select .fixed { font-weight: 600; padding: 8px 6px; }
+    .row-actions { display: flex; gap: 6px; justify-content: flex-end; }
+    .pill { display: inline-flex; gap: 4px; align-items: center; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); }
+    .pill.on { color: #8de0b0; border-color: #24533a; background: #14271d; }
+    .pill.off { color: var(--muted); }
+    .toggles { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 4px; }
+    .toggles .hint { margin-left: 25px; margin-top: -6px; }
+  </style>
+</head>
+<body>
+  <div id="app" class="app" hidden>
+    <aside class="side">
+      <div class="side-brand"><img src="/img/c10.svg" alt="" width="30" height="30" /><span class="brand">Cidade<b>10</b></span></div>
+      <div class="city-select" id="city-select"></div>
+      <nav class="nav-links">
+        <a href="#inicio" data-view="inicio"><span>🏠</span>Início</a>
+        <a href="#comercios" data-view="comercios"><span>🏪</span>Comércios</a>
+        <a href="#pedidos" data-view="pedidos"><span>📨</span>Pedidos</a>
+        <a href="#usuarios" data-view="usuarios"><span>👤</span>Acessos</a>
+        <a href="#cidades" data-view="cidades" id="nav-cities" hidden><span>🌎</span>Cidades</a>
+      </nav>
+      <div class="side-foot">
+        <a class="btn ghost sm block" id="see-city" href="/" target="_blank">Ver página da cidade</a>
+        <button class="btn ghost sm block" id="change-pw">Minha senha</button>
+        <button class="btn ghost sm block" id="logout">Sair</button>
+        <div class="small muted" id="who" style="padding:4px 6px"></div>
+      </div>
+    </aside>
+    <main class="main" id="view"></main>
+  </div>
+  <script type="module" src="/js/painel.js"></script>
+</body>
+</html>

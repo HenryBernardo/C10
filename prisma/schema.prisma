@@ -1,0 +1,276 @@
+// Esquema do banco (PostgreSQL / Supabase).
+// Os campos seguem o nome das colunas (snake_case) para a API continuar devolvendo o mesmo formato.
+// Depois de mudar este arquivo: `npm run db:migrate:dev -- --name descricao` cria a migração.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model City {
+  id          Int        @id @default(autoincrement())
+  slug        String     @unique
+  name        String
+  state       String
+  tagline     String?
+  description String?
+  color       String     @default("#0f766e")
+  active      Boolean    @default(true)
+  businesses  Business[]
+  leads       Lead[]
+  users       User[]
+
+  @@map("c10_cities")
+}
+
+model Category {
+  id         Int        @id @default(autoincrement())
+  slug       String     @unique
+  name       String
+  icon       String
+  color      String
+  sort       Int        @default(0)
+  businesses Business[]
+  leads      Lead[]
+
+  @@map("c10_categories")
+}
+
+model Business {
+  id              Int       @id @default(autoincrement())
+  city_id         Int
+  category_id     Int
+  slug            String
+  name            String
+  description     String?
+  address         String?
+  neighborhood    String?
+  /// WhatsApp com DDI, só dígitos
+  phone           String?
+  instagram       String?
+  /// { "1": ["08:00","18:00"], ... } (0 = domingo)
+  hours           Json      @default("{}")
+  /// Tem agenda online (sistema de agendamento)
+  booking_enabled Boolean   @default(false)
+  featured        Boolean   @default(false)
+  active          Boolean   @default(true)
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+  city            City      @relation(fields: [city_id], references: [id], onDelete: Cascade)
+  category        Category  @relation(fields: [category_id], references: [id])
+  users           User[]
+  settings        ShopSetting[]
+  barbers         Barber[]
+  services        Service[]
+  blocks          Block[]
+  clients         Client[]
+  appointments    Appointment[]
+  loyalty_entries LoyaltyEntry[]
+
+  @@unique([city_id, slug])
+  @@index([city_id, category_id], map: "idx_c10_biz_city")
+  @@map("c10_businesses")
+}
+
+/// Pedidos de cadastro enviados por donos de comércio.
+model Lead {
+  id            Int       @id @default(autoincrement())
+  city_id       Int?
+  category_id   Int?
+  business_name String
+  contact_name  String
+  phone         String
+  message       String?
+  /// novo | contatado | cadastrado | descartado
+  status        String    @default("novo")
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  city          City?     @relation(fields: [city_id], references: [id], onDelete: SetNull)
+  category      Category? @relation(fields: [category_id], references: [id])
+
+  @@map("c10_leads")
+}
+
+/// Papéis: super (admin geral), city (admin de uma cidade), shop (dono de um comércio com agenda).
+model User {
+  id          Int       @id @default(autoincrement())
+  name        String
+  /// E-mail ou login (contas de teste usam login curto)
+  email       String    @unique
+  password    String
+  role        String
+  city_id     Int?
+  business_id Int?
+  active      Boolean   @default(true)
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  city        City?     @relation(fields: [city_id], references: [id])
+  business    Business? @relation(fields: [business_id], references: [id])
+  sessions    Session[]
+
+  @@map("users")
+}
+
+model Session {
+  token      String   @id
+  user_id    Int
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  expires_at DateTime @db.Timestamptz(6)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id], map: "idx_sessions_user")
+  @@map("sessions")
+}
+
+/// Limite de tentativas (login, agendamento, cadastro), compartilhado entre as instâncias da Vercel.
+model RateLimit {
+  id     Int      @id @default(autoincrement())
+  key    String
+  hit_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([key, hit_at], map: "idx_rate_limits")
+  @@map("rate_limits")
+}
+
+/* ---------- Agendamento: tudo separado por shop_id (= c10_businesses.id) ---------- */
+
+model ShopSetting {
+  shop_id Int
+  key     String
+  value   String
+  shop    Business @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+
+  @@id([shop_id, key])
+  @@map("shop_settings")
+}
+
+model Barber {
+  id             Int           @id @default(autoincrement())
+  shop_id        Int
+  name           String
+  phone          String?
+  commission_pct Float         @default(50) @db.Real
+  color          String        @default("#c8a24a")
+  active         Boolean       @default(true)
+  shop           Business      @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  hours          BarberHour[]
+  blocks         Block[]
+  appointments   Appointment[]
+
+  @@map("barbers")
+}
+
+model BarberHour {
+  barber_id   Int
+  /// 0 = domingo ... 6 = sábado
+  weekday     Int
+  start_min   Int
+  end_min     Int
+  break_start Int?
+  break_end   Int?
+  barber      Barber @relation(fields: [barber_id], references: [id], onDelete: Cascade)
+
+  @@id([barber_id, weekday])
+  @@map("barber_hours")
+}
+
+model Service {
+  id           Int           @id @default(autoincrement())
+  shop_id      Int
+  name         String
+  description  String?
+  duration_min Int
+  price_cents  Int
+  active       Boolean       @default(true)
+  shop         Business      @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+
+  @@map("services")
+}
+
+/// Folga, férias, compromisso. barber_id nulo = barbearia inteira.
+model Block {
+  id         Int      @id @default(autoincrement())
+  shop_id    Int
+  barber_id  Int?
+  date_start DateTime @db.Date
+  date_end   DateTime @db.Date
+  start_min  Int      @default(0)
+  end_min    Int      @default(1440)
+  reason     String?
+  shop       Business @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  barber     Barber?  @relation(fields: [barber_id], references: [id], onDelete: Cascade)
+
+  @@map("blocks")
+}
+
+model Client {
+  id              Int            @id @default(autoincrement())
+  shop_id         Int
+  name            String
+  phone           String
+  notes           String?
+  blocked         Boolean        @default(false)
+  created_at      DateTime       @default(now()) @db.Timestamptz(6)
+  shop            Business       @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  appointments    Appointment[]
+  loyalty_entries LoyaltyEntry[]
+
+  @@unique([shop_id, phone])
+  @@map("clients")
+}
+
+model Appointment {
+  id              Int            @id @default(autoincrement())
+  shop_id         Int
+  /// Código curto para o cliente consultar/cancelar
+  code            String         @unique
+  barber_id       Int
+  service_id      Int
+  client_id       Int
+  date            DateTime       @db.Date
+  start_min       Int
+  end_min         Int
+  price_cents     Int
+  /// scheduled | confirmed | done | cancelled | no_show
+  status          String         @default("scheduled")
+  /// online | admin
+  source          String         @default("online")
+  /// pix | dinheiro | cartao
+  payment         String?
+  notes           String?
+  reminded        Boolean        @default(false)
+  created_at      DateTime       @default(now()) @db.Timestamptz(6)
+  shop            Business       @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  barber          Barber         @relation(fields: [barber_id], references: [id])
+  service         Service        @relation(fields: [service_id], references: [id])
+  client          Client         @relation(fields: [client_id], references: [id])
+  loyalty_entries LoyaltyEntry[]
+
+  @@index([barber_id, date], map: "idx_appt_barber_date")
+  @@index([shop_id, date], map: "idx_appt_shop_date")
+  @@index([client_id], map: "idx_appt_client")
+  @@map("appointments")
+}
+
+/// Cartão fidelidade: prêmios usados (redeem) e selos somados/tirados à mão (adjust).
+model LoyaltyEntry {
+  id             Int          @id @default(autoincrement())
+  shop_id        Int
+  client_id      Int
+  /// redeem | adjust
+  kind           String
+  /// redeem: selos que sobraram no cartão; adjust: selos somados (ou tirados)
+  stamps         Int
+  reward         String?
+  appointment_id Int?
+  note           String?
+  created_at     DateTime     @default(now()) @db.Timestamptz(6)
+  shop           Business     @relation(fields: [shop_id], references: [id], onDelete: Cascade)
+  client         Client       @relation(fields: [client_id], references: [id], onDelete: Cascade)
+  appointment    Appointment? @relation(fields: [appointment_id], references: [id], onDelete: SetNull)
+
+  @@index([client_id, id], map: "idx_loyalty_client")
+  @@map("loyalty_entries")
+}

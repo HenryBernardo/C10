@@ -1,0 +1,4 @@
+﻿{ "version": "0.0.1", "configurations": [
+  { "name": "cidade10", "runtimeExecutable": "npx", "runtimeArgs": ["next", "dev", "-p", "3002"], "port": 3002 },
+  { "name": "narrador", "runtimeExecutable": "node", "runtimeArgs": ["C:/Users/Henry/Desktop/OneTikNarrador/server.js"], "port": 3333 }
+] }

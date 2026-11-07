@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Entrar · Cidade 10</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/img/c10.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/c10.css" />
+  <style>
+    :root { --accent: #0f766e; }
+    body { min-height: 100vh; display: grid; place-items: center; padding: 16px;
+      background: linear-gradient(135deg, #0f766e, #134e4a 60%, #0b3b37); }
+    body.area-barbearia { --accent: #b8892e; --accent-soft: #b8892e22; --accent-ink: #8a6420;
+      background: radial-gradient(circle at 20% 0%, #3a2f1c, #17140f 55%, #0c0a08); }
+    @media (prefers-color-scheme: dark) { body.area-barbearia { --accent-soft: #b8892e33; --accent-ink: #e0b866; } }
+    .box { background: var(--surface); border-radius: 24px; padding: 30px 26px; width: 100%; max-width: 380px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+    .box.wide { max-width: 520px; }
+    .box .logo { justify-content: center; width: 100%; margin-bottom: 6px; }
+    .badge { display: flex; width: fit-content; margin: 0 auto 10px; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; font-size: 13px; }
+    .box h1 { font-size: 21px; text-align: center; margin-bottom: 4px; }
+    .box p.sub { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+    .box .form { margin-top: 0; }
+    .err { background: #fef3f2; color: #b42318; border: 1px solid #fecdca; border-radius: 10px; padding: 9px 12px; font-size: 14px; }
+    .back { display: block; text-align: center; margin-top: 16px; font-size: 14px; color: var(--muted); }
+    .back a { color: var(--accent-ink); font-weight: 600; }
+    .choices { display: grid; gap: 12px; }
+    .choice { display: flex; gap: 14px; align-items: center; padding: 16px; border: 1px solid var(--line); border-radius: 18px; color: var(--text);
+      transition: border-color .15s, transform .15s, box-shadow .15s; }
+    .choice:hover { border-color: var(--c); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .choice .ico { flex: none; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: var(--c); }
+    .choice b { display: block; font-size: 16px; margin-bottom: 2px; }
+    .choice small { color: var(--muted); font-size: 13px; line-height: 1.4; display: block; }
+    .choice .go { margin-left: auto; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="box wide" id="chooser" hidden>
+    <a href="/" class="logo"><img src="/img/c10.svg" alt="" width="36" height="36" /><span>Cidade<b>10</b></span></a>
+    <h1>Entrar no painel</h1>
+    <p class="sub">Escolha o seu tipo de acesso.</p>
+    <div class="choices">
+      <a class="choice" href="/entrar/cidade" style="--c:#0f766e">
+        <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span><b>Admin da cidade</b><small>Comércios, pedidos de cadastro e acessos da sua cidade.</small></span>
+        <span class="go">→</span>
+      </a>
+      <a class="choice" href="/entrar/barbearia" style="--c:#b8892e">
+        <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg></span>
+        <span><b>Barbearia</b><small>Agenda, barbeiros, serviços, clientes e financeiro.</small></span>
+        <span class="go">→</span>
+      </a>
+    </div>
+    <a class="back" href="/">← Voltar ao guia</a>
+  </div>
+
+  <div class="box" id="login" hidden>
+    <a href="/" class="logo"><img src="/img/c10.svg" alt="" width="36" height="36" /><span>Cidade<b>10</b></span></a>
+    <span class="badge" id="badge"></span>
+    <h1 id="title"></h1>
+    <p class="sub" id="sub"></p>
+    <form class="form" id="f">
+      <div class="err" id="err" hidden></div>
+      <label>E-mail ou login<input type="text" id="email" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus /></label>
+      <label>Senha<input type="password" id="password" autocomplete="current-password" required /></label>
+      <button class="btn btn-accent btn-lg" id="btn">Entrar</button>
+    </form>
+    <p class="back" id="other"></p>
+    <a class="back" href="/">← Voltar ao guia</a>
+  </div>
+  <script type="module" src="/js/entrar.js"></script>
+</body>
+</html>

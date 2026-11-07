@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel da Barbearia</title>
+  <meta name="theme-color" content="#0f0f10" />
+  <link rel="icon" href="/img/icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+  <div id="app" class="app" hidden>
+    <aside class="side">
+      <div class="side-brand"><img src="/img/icon.svg" alt="" width="30" height="30" /><span class="brand" id="brand">Barbearia</span></div>
+      <nav class="nav-links">
+        <a href="#agenda" data-view="agenda"><span>📅</span>Agenda</a>
+        <a href="#lembretes" data-view="lembretes"><span>🔔</span>Lembretes</a>
+        <a href="#clientes" data-view="clientes"><span>👥</span>Clientes</a>
+        <a href="#fidelidade" data-view="fidelidade"><span>🎁</span>Fidelidade</a>
+        <a href="#financeiro" data-view="financeiro"><span>💰</span>Financeiro</a>
+        <a href="#config" data-view="config"><span>⚙️</span>Configurações</a>
+      </nav>
+      <div class="side-foot">
+        <a class="btn ghost sm block" id="back-panel" href="/painel" hidden>← Painel da cidade</a>
+        <a class="btn ghost sm block" id="see-page" href="/" target="_blank">Ver página de agendamento</a>
+        <button class="btn ghost sm block" id="copy-link">Copiar link para clientes</button>
+        <button class="btn ghost sm block" id="logout">Sair</button>
+        <div class="small muted" id="who" style="padding:4px 6px"></div>
+      </div>
+    </aside>
+    <main class="main" id="view"></main>
+  </div>
+
+  <script type="module" src="/js/admin.js"></script>
+</body>
+</html>
