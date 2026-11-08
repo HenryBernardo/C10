@@ -51,6 +51,18 @@ Abra http://localhost:3000. Para ver e editar os dados direto no banco, use `npm
 
 Quando houver uma migração nova (mudança no `prisma/schema.prisma`), rode `npm run db:migrate` com o `.env.local` apontando para o Supabase antes de publicar.
 
+## Cidade única (por enquanto só Foz)
+
+O arquivo [lib/cities.ts](lib/cities.ts) tem `ONLY_CITY = 'foz-do-iguacu'`. Enquanto estiver assim:
+
+- quem abre o site (`/`) vai direto para `/foz-do-iguacu`;
+- o menu "Cidades" e a lista de cidades do rodapé somem, e o cadastro de negócio não pergunta a cidade;
+- páginas de outras cidades (ex.: `/cascavel`) mostram "página não encontrada";
+- no painel somem a aba **Cidades** e a opção "Todas as cidades" nos pedidos, e só aparecem dados e acessos de Foz;
+- contas de outras cidades (ex.: `cidade2`, `barbearia2`) não conseguem entrar.
+
+Os dados das outras cidades continuam no banco. Para voltar a ter várias cidades, troque por `ONLY_CITY = null`.
+
 ## Variáveis de ambiente
 
 | Variável | Para quê |

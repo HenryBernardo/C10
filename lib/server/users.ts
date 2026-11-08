@@ -1,4 +1,5 @@
 import { db } from './db';
+import { ONLY_CITY, cityWhere } from '../cities';
 import { HttpError, hashPassword, verifyPassword, newToken } from './util';
 import { limit, reset } from './ratelimit';
 import { isTestLogin } from './seed';
@@ -48,6 +49,7 @@ export async function login(emailRaw: unknown, password: unknown, ip: string, ar
   const role = user.role as Role;
   const entry = area ? LOGIN_AREAS[area] : undefined;
   if (entry && !entry.roles.includes(role)) throw new HttpError(403, entry.wrong);
+  if (!(await inActiveCity(user))) throw new HttpError(403, 'Esta conta é de uma cidade que não está no ar no momento.');
 
   await db().session.deleteMany({ where: { expires_at: { lte: new Date() } } });
   const token = newToken();
@@ -84,14 +86,21 @@ export async function createUser(u: { name: unknown; email: unknown; password: u
   return created.id;
 }
 
+/** Com uma cidade só (lib/cities.ts), contas de outras cidades não entram. */
+async function inActiveCity(u: { role: string; city_id: number | null; business_id: number | null }) {
+  if (!ONLY_CITY || u.role === 'super') return true;
+  if (u.role === 'city') return !!(u.city_id && (await db().city.findFirst({ where: { id: u.city_id, ...cityWhere } })));
+  return !!(u.business_id && (await db().business.findFirst({ where: { id: u.business_id, city: cityWhere } })));
+}
+
 /** Cidade que o usuário do painel pode gerenciar (admin geral escolhe; admin da cidade só a dele). */
 export async function cityScope(user: SessionUser, requested: unknown): Promise<number> {
   if (user.role === 'super') {
     const id = Number(requested);
-    if (!id || !(await db().city.findUnique({ where: { id } }))) throw new HttpError(400, 'Escolha a cidade.');
+    if (!id || !(await db().city.findFirst({ where: { id, ...cityWhere } }))) throw new HttpError(400, 'Escolha a cidade.');
     return id;
   }
-  if (user.role === 'city' && user.city_id) return user.city_id;
+  if (user.role === 'city' && user.city_id && (await inActiveCity(user))) return user.city_id;
   throw new HttpError(403, 'Sem permissão.');
 }
 
@@ -101,13 +110,13 @@ export async function cityScope(user: SessionUser, requested: unknown): Promise<
  */
 export async function resolveShop(shopHeader: string | null, user: SessionUser): Promise<number> {
   if (user.role === 'shop') {
-    if (!user.business_id || !(await db().business.findFirst({ where: { id: user.business_id, booking_enabled: true } }))) {
+    if (!user.business_id || !(await db().business.findFirst({ where: { id: user.business_id, booking_enabled: true, city: cityWhere } }))) {
       throw new HttpError(403, 'A agenda online deste comércio está desativada. Fale com o Cidade 10.');
     }
     return user.business_id;
   }
   const id = Number(shopHeader);
-  const biz = id ? await db().business.findFirst({ where: { id, booking_enabled: true }, select: { city_id: true } }) : null;
+  const biz = id ? await db().business.findFirst({ where: { id, booking_enabled: true, city: cityWhere }, select: { city_id: true } }) : null;
   if (!biz) throw new HttpError(400, 'Escolha um comércio com agenda online.');
   if (user.role === 'city' && biz.city_id !== user.city_id) throw new HttpError(403, 'Este comércio é de outra cidade.');
   return id;

@@ -3,12 +3,13 @@ import { db, tx } from '../db';
 import { route } from './router';
 import { createUser, setPassword, cityScope, ROLES } from '../users';
 import { uniqueSlug } from '../c10';
+import { ONLY_CITY, cityWhere } from '../../cities';
 import { HttpError, normalizePhone, slugify, str } from '../util';
 import { todayStr, addDays, toDbDate } from '../time';
 import type { Role, SessionUser } from '../../types';
 
 async function businessInScope(user: SessionUser, id: number) {
-  const b = await db().business.findUnique({ where: { id } });
+  const b = await db().business.findFirst({ where: { id, city: cityWhere } });
   if (!b) throw new HttpError(404, 'Comércio não encontrado.');
   if (user.role === 'city' && b.city_id !== user.city_id) throw new HttpError(403, 'Este comércio é de outra cidade.');
   return b;
@@ -16,7 +17,7 @@ async function businessInScope(user: SessionUser, id: number) {
 
 route('GET', '/api/panel/context', async ({ user }) => ({
   user: { id: user.id, name: user.name, email: user.email, role: user.role, role_label: ROLES[user.role], city_id: user.city_id },
-  cities: await db().city.findMany({ where: user.role === 'super' ? {} : { id: user.city_id ?? -1 }, orderBy: { name: 'asc' } }),
+  cities: await db().city.findMany({ where: { ...cityWhere, ...(user.role === 'super' ? {} : { id: user.city_id ?? -1 }) }, orderBy: { name: 'asc' } }),
   categories: await db().category.findMany({ orderBy: { sort: 'asc' } }),
 }), 'panel');
 
@@ -134,7 +135,7 @@ route('PUT', '/api/panel/businesses/:id', async ({ user, params, body }) => {
 
 route('GET', '/api/panel/leads', async ({ user, query }) => {
   // Admin geral vê também pedidos de cidades que ainda não existem no Cidade 10.
-  const all = user.role === 'super' && query.get('city') === 'all';
+  const all = !ONLY_CITY && user.role === 'super' && query.get('city') === 'all';
   const cityId = all ? undefined : await cityScope(user, query.get('city'));
   const rows = await db().lead.findMany({
     where: all ? {} : { city_id: cityId },
@@ -158,7 +159,9 @@ route('PATCH', '/api/panel/leads/:id', async ({ user, params, body }) => {
 
 route('GET', '/api/panel/users', async ({ user }) => {
   const rows = await db().user.findMany({
-    where: user.role === 'super' ? {} : { role: 'shop', business: { city_id: user.city_id ?? -1 } },
+    where: user.role === 'super'
+      ? (ONLY_CITY ? { OR: [{ role: 'super' }, { city: cityWhere }, { business: { city: cityWhere } }] } : {})
+      : { role: 'shop', business: { city_id: user.city_id ?? -1 } },
     select: {
       id: true, name: true, email: true, role: true, city_id: true, business_id: true, active: true, created_at: true,
       city: { select: { name: true } },
@@ -191,8 +194,8 @@ route('POST', '/api/panel/users', async ({ user, body }) => {
     business_id: role === 'shop' ? Number(body.business_id) || null : null,
   };
   await checkUserScope(user, target);
-  if (role === 'city' && !(target.city_id && (await db().city.findUnique({ where: { id: target.city_id } })))) throw new HttpError(400, 'Escolha a cidade.');
-  if (role === 'shop' && !(target.business_id && (await db().business.findUnique({ where: { id: target.business_id } })))) throw new HttpError(400, 'Escolha o comércio.');
+  if (role === 'city' && !(target.city_id && (await db().city.findFirst({ where: { id: target.city_id, ...cityWhere } })))) throw new HttpError(400, 'Escolha a cidade.');
+  if (role === 'shop' && !(target.business_id && (await db().business.findFirst({ where: { id: target.business_id, city: cityWhere } })))) throw new HttpError(400, 'Escolha o comércio.');
   const id = await createUser({ name: body.name, email: body.email, password: body.password, role, cityId: target.city_id, businessId: target.business_id });
   return { id };
 }, 'panel');

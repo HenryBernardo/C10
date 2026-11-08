@@ -1,6 +1,7 @@
 // Cidade 10: guia de comércios por cidade.
 import { db, Prisma } from './db';
 import { slugify } from './util';
+import { cityWhere } from '../cities';
 import type { Business, Category, City, Hours } from '../types';
 
 const withCategory = { category: true } as const;
@@ -18,14 +19,14 @@ export const toBusiness = ({ category, ...b }: BizRow): Business => ({
 
 export async function getCities(): Promise<City[]> {
   const rows = await db().city.findMany({
-    where: { active: true },
+    where: { active: true, ...cityWhere },
     orderBy: { name: 'asc' },
     include: { _count: { select: { businesses: { where: { active: true } } } } },
   });
   return rows.map(({ _count, ...c }) => ({ ...c, total: _count.businesses }));
 }
 
-export const getCity = (slug: string) => db().city.findFirst({ where: { slug, active: true } });
+export const getCity = (slug: string) => db().city.findFirst({ where: { AND: [{ slug, active: true }, cityWhere] } });
 
 export const getCategories = (): Promise<Category[]> => db().category.findMany({ orderBy: { sort: 'asc' } });
 
@@ -74,11 +75,11 @@ const toShop = (b: (BizRow & { city: { slug: string; name: string; state: string
 
 /** Comércio com agenda online ativa, com os dados da cidade para montar links. */
 export const getShop = async (shopId: number) =>
-  toShop(await db().business.findFirst({ where: { id: shopId, booking_enabled: true, active: true }, include: { ...withCategory, city: true } }));
+  toShop(await db().business.findFirst({ where: { id: shopId, booking_enabled: true, active: true, city: cityWhere }, include: { ...withCategory, city: true } }));
 
 export const getShopBySlugs = async (citySlug: string, bizSlug: string) =>
   toShop(await db().business.findFirst({
-    where: { slug: bizSlug, booking_enabled: true, active: true, city: { slug: citySlug, active: true } },
+    where: { slug: bizSlug, booking_enabled: true, active: true, city: { AND: [{ slug: citySlug, active: true }, cityWhere] } },
     include: { ...withCategory, city: true },
   }));
 

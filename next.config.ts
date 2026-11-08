@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { ONLY_CITY } from './lib/cities';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -25,6 +26,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   experimental: {
     globalNotFound: true,
+  },
+  // Com uma cidade só, quem entra no site vai direto para ela.
+  async redirects() {
+    return ONLY_CITY ? [{ source: '/', destination: `/${ONLY_CITY}`, permanent: false }] : [];
   },
   async headers() {
     return [

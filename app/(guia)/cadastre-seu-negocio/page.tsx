@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { connection } from 'next/server';
 import { getCategories, getCities, getCity } from '@/lib/server/c10';
+import { ONLY_CITY } from '@/lib/cities';
 import { Shell, ShellSkeleton } from '@/components/guide/Shell';
 import { Icon } from '@/components/Icon';
 import { sendLead } from './actions';
@@ -24,7 +25,7 @@ async function Content({ searchParams }: Pick<PageProps<'/cadastre-seu-negocio'>
   await connection();
   const sp = await searchParams;
   const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : '');
-  const [current, cities, cats] = await Promise.all([getCity(one(sp.cidade)), getCities(), getCategories()]);
+  const [current, cities, cats] = await Promise.all([getCity(ONLY_CITY ?? one(sp.cidade)), getCities(), getCategories()]);
   const sent = 'enviado' in sp;
   const error = one(sp.erro).slice(0, 200);
 
@@ -58,13 +59,14 @@ async function Content({ searchParams }: Pick<PageProps<'/cadastre-seu-negocio'>
               <p className="muted" style={{ marginTop: -8, fontSize: 14 }}>Leva 1 minuto. A gente entra em contato.</p>
               {error && <div className="form-error" role="alert">{error}</div>}
               <label>Nome do negócio<input name="business_name" required maxLength={100} placeholder="Ex.: Barbearia do Zé" /></label>
-              <div className="row2">
-                <label>Cidade
+              {ONLY_CITY && <input type="hidden" name="city" value={ONLY_CITY} />}
+              <div className={ONLY_CITY ? undefined : 'row2'}>
+                {!ONLY_CITY && <label>Cidade
                   <select name="city" defaultValue={current?.slug ?? ''}>
                     {cities.map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
                     <option value="">Outra cidade</option>
                   </select>
-                </label>
+                </label>}
                 <label>Categoria<select name="category">{cats.map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}</select></label>
               </div>
               <div className="row2">

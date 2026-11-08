@@ -3,6 +3,7 @@
 // Telas: início, comércios, pedidos de cadastro, acessos e cidades (só admin geral).
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { ONLY_CITY } from '@/lib/cities';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { api, store, toast } from '@/lib/client';
@@ -66,7 +67,7 @@ export function CityPanel() {
   if (!ctx) return <div className="main"><Spinner /></div>;
   const isSuper = ctx.user.role === 'super';
   let view = (parts[1] ?? 'inicio') as View;
-  if (!(view in VIEWS) || (view === 'cidades' && !isSuper)) view = 'inicio';
+  if (!(view in VIEWS) || (view === 'cidades' && (!isSuper || ONLY_CITY))) view = 'inicio';
   const city = ctx.cities.find((c) => c.id === cityId) ?? null;
   const setCityId = (id: number) => { setCityIdState(id); store.set(CITY_KEY, id); };
   const p = { ctx, city: city!, isSuper, open: setModal, onError, refresh };
@@ -76,14 +77,14 @@ export function CityPanel() {
       <aside className="side">
         <div className="side-brand"><img src="/img/c10.svg" alt="" width={30} height={30} /><span className="brand">Cidade<b>10</b></span></div>
         <div className="city-select">
-          {isSuper ? (
+          {isSuper && !ONLY_CITY ? (
             <select className="input" value={cityId ?? ''} onChange={(e) => setCityId(Number(e.target.value))}>
               {ctx.cities.map((c) => <option key={c.id} value={c.id}>{c.name} - {c.state}{c.active ? '' : ' (inativa)'}</option>)}
             </select>
           ) : <div className="fixed">📍 {city?.name}</div>}
         </div>
         <nav className="nav-links">
-          {(Object.keys(VIEWS) as View[]).filter((v) => v !== 'cidades' || isSuper).map((v) => (
+          {(Object.keys(VIEWS) as View[]).filter((v) => v !== 'cidades' || (isSuper && !ONLY_CITY)).map((v) => (
             <Link key={v} href={v === 'inicio' ? '/painel' : `/painel/${v}`} className={view === v ? 'active' : undefined}>
               <span>{ICONS[v]}</span>{VIEWS[v]}
             </Link>
@@ -347,7 +348,7 @@ function Leads({ city, isSuper, open, onError, showAll }: ViewProps & { showAll:
   return (
     <>
       <div className="page-head"><h1>Pedidos de cadastro</h1><div className="spacer" />
-        {isSuper && (
+        {isSuper && !ONLY_CITY && (
           <div className="tabs" style={{ margin: 0 }}>
             <Link href="/painel/pedidos" className={showAll ? '' : 'active'}>{city.name}</Link>
             <Link href="/painel/pedidos/todos" className={showAll ? 'active' : ''}>Todas as cidades</Link>
