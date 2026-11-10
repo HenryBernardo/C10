@@ -6,19 +6,12 @@ import { Icon } from '@/components/Icon';
 import { ONLY_CITY } from '@/lib/cities';
 import type { City } from '@/lib/types';
 
-/** Cor de destaque da cidade (já validada como #rrggbb no cadastro). */
-export function Accent({ color }: { color?: string | null }) {
-  const c = /^#[0-9a-f]{6}$/i.test(color ?? '') ? color : '#0f766e';
-  return <style>{`:root { --accent: ${c}; }`}</style>;
-}
-
 /** Topo, rodapé e barra fixa do celular, em volta do conteúdo de cada página do guia. */
 export async function Shell({ city, children, mobileBar }: { city?: City | null; children: ReactNode; mobileBar?: ReactNode }) {
   const cities = await getCities();
   const signup = `/cadastre-seu-negocio${city ? `?cidade=${city.slug}` : ''}`;
   return (
     <div className={mobileBar ? 'has-mobile-bar' : undefined}>
-      <Accent color={city?.color} />
       <header className="topbar">
         <div className="container topbar-inner">
           <Link href="/" className="logo" aria-label="Cidade 10 — início">

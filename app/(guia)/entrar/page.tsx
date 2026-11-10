@@ -15,12 +15,12 @@ export default function ChooseLogin() {
         <h1>Entrar no painel</h1>
         <p className="sub">Escolha o seu tipo de acesso.</p>
         <div className="choices">
-          <Link className="choice" href="/entrar/cidade" style={{ '--c': '#0f766e' } as CSSProperties}>
+          <Link className="choice" href="/entrar/cidade" style={{ '--c': '#4f46e5' } as CSSProperties}>
             <span className="ico"><Icon name="pin" size={24} /></span>
             <span><b>Admin da cidade</b><small>Comércios, pedidos de cadastro e acessos da sua cidade.</small></span>
             <span className="go">→</span>
           </Link>
-          <Link className="choice" href="/entrar/barbearia" style={{ '--c': '#b8892e' } as CSSProperties}>
+          <Link className="choice" href="/entrar/barbearia" style={{ '--c': '#b45309' } as CSSProperties}>
             <span className="ico"><Icon name="scissors" size={24} /></span>
             <span><b>Barbearia</b><small>Agenda, barbeiros, serviços, clientes e financeiro.</small></span>
             <span className="go">→</span>

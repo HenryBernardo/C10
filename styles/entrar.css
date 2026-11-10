@@ -1,25 +1,26 @@
-.login-page { --accent: #0f766e; }
-.login-page { min-height: 100vh; display: grid; place-items: center; padding: 16px;
-  background: linear-gradient(135deg, #0f766e, #134e4a 60%, #0b3b37); }
-.login-page.area-barbearia { --accent: #b8892e; --accent-soft: #b8892e22; --accent-ink: #8a6420;
-  background: radial-gradient(circle at 20% 0%, #3a2f1c, #17140f 55%, #0c0a08); }
-@media (prefers-color-scheme: dark) { .login-page.area-barbearia { --accent-soft: #b8892e33; --accent-ink: #e0b866; } }
-.login-page .box { background: var(--surface); border-radius: 24px; padding: 30px 26px; width: 100%; max-width: 380px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
-.login-page .box.wide { max-width: 520px; }
-.login-page .box .logo { justify-content: center; width: 100%; margin-bottom: 6px; }
-.login-page .badge { display: flex; width: fit-content; margin: 0 auto 10px; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px;
-  background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; font-size: 13px; }
-.login-page .box h1 { font-size: 21px; text-align: center; margin-bottom: 4px; }
-.login-page .box p.sub { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+.login-page { min-height: 100vh; display: grid; place-items: center; padding: 16px; background: var(--surface-2); }
+.login-page.area-barbearia { --accent: #b45309; --accent-soft: #fef3c7; --accent-ink: #92400e; }
+@media (prefers-color-scheme: dark) {
+  .login-page { background: var(--bg); }
+  .login-page.area-barbearia { --accent: #f59e0b; --accent-soft: #3b2a06; --accent-ink: #fcd34d; }
+}
+.login-page .box { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 32px 28px; width: 100%; max-width: 380px; box-shadow: var(--shadow-lg); }
+.login-page .box.wide { max-width: 480px; }
+.login-page .box .logo { justify-content: center; width: 100%; margin-bottom: 14px; }
+.login-page .badge { display: flex; width: fit-content; margin: 0 auto 10px; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent-ink); font-weight: 500; font-size: 13px; }
+.login-page .box h1 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 4px; }
+.login-page .box p.sub { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 22px; }
 .login-page .box .form { margin-top: 0; }
-.login-page .err { background: #fef3f2; color: #b42318; border: 1px solid #fecdca; border-radius: 10px; padding: 9px 12px; font-size: 14px; }
+.login-page .err { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 10px; padding: 9px 12px; font-size: 14px; }
 .login-page .back { display: block; text-align: center; margin-top: 16px; font-size: 14px; color: var(--muted); }
-.login-page .back a { color: var(--accent-ink); font-weight: 600; }
-.login-page .choices { display: grid; gap: 12px; }
-.login-page .choice { display: flex; gap: 14px; align-items: center; padding: 16px; border: 1px solid var(--line); border-radius: 18px; color: var(--text);
-  transition: border-color .15s, transform .15s, box-shadow .15s; }
-.login-page .choice:hover { border-color: var(--c); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-.login-page .choice .ico { flex: none; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: var(--c); }
-.login-page .choice b { display: block; font-size: 16px; margin-bottom: 2px; }
+.login-page .back a { color: var(--accent); font-weight: 600; }
+.login-page .choices { display: grid; gap: 10px; }
+.login-page .choice { display: flex; gap: 14px; align-items: center; padding: 14px; border: 1px solid var(--line); border-radius: 14px; color: var(--text);
+  transition: border-color .15s, background .15s; }
+.login-page .choice:hover { border-color: var(--c); background: var(--surface-2); }
+.login-page .choice .ico { flex: none; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+  color: var(--c); background: color-mix(in srgb, var(--c) 12%, var(--surface)); }
+.login-page .choice b { display: block; font-size: 15.5px; font-weight: 600; margin-bottom: 2px; }
 .login-page .choice small { color: var(--muted); font-size: 13px; line-height: 1.4; display: block; }
 .login-page .choice .go { margin-left: auto; color: var(--muted); }

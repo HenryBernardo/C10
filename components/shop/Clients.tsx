@@ -55,7 +55,7 @@ export function Clients({ openId }: { openId?: number }) {
               <td><b>{c.name}</b> {c.blocked && <span className="badge no_show">bloqueado</span>}</td>
               <td>{fmtPhone(c.phone)}</td>
               <td className="num">{c.visits}</td>
-              <td className="num" style={c.no_shows ? { color: '#ff9f96' } : undefined}>{c.no_shows}</td>
+              <td className={c.no_shows ? 'num bad' : 'num'}>{c.no_shows}</td>
               <td className="num">{money(c.total_spent)}</td>
               {loyal && <td>{!c.loyalty ? '' : c.loyalty.available
                 ? <span className="badge done">🎁 {c.loyalty.available > 1 ? `${c.loyalty.available} prêmios` : 'prêmio'}</span>
