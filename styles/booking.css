@@ -1,15 +1,20 @@
 .hero {
-  background: var(--card);
-  border-bottom: 1px solid var(--line);
-  padding: 32px 16px 24px;
+  background:
+    radial-gradient(55% 90% at 85% 0%, rgba(77, 183, 254, 0.28), transparent 65%),
+    linear-gradient(160deg, #2b3a66, #3a4f8f 60%, #2e3f6e);
+  color: #fff;
+  padding: 40px 16px 34px;
   text-align: center;
 }
 .hero-inner { max-width: 640px; margin: 0 auto; }
 .logo { width: 48px; height: 48px; margin-bottom: 10px; border-radius: 12px; }
-.hero h1 { font-size: 26px; }
-.hero p { margin: 4px 0 14px; }
+.hero h1 { font-size: 30px; font-weight: 800; color: #fff; }
+.hero p { margin: 6px 0 18px; }
+.hero .muted { color: rgba(255, 255, 255, 0.8); }
 .hero-actions { justify-content: center; }
-.hero-actions .btn.ghost { border-color: var(--line); }
+.hero-actions .btn.ghost { border-color: rgba(255, 255, 255, 0.25); color: #fff; }
+.hero-actions .btn.ghost:hover { background: rgba(255, 255, 255, 0.1); }
+.wrap > .card { box-shadow: var(--shadow); }
 
 .wrap { max-width: 640px; margin: 22px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
 
@@ -24,8 +29,8 @@
   background: var(--card-2); color: var(--muted); font-weight: 600; font-size: 12px;
 }
 .steps li.active { color: var(--text); font-weight: 600; }
-.steps li.active::before { background: var(--gold); color: var(--gold-ink); }
-.steps li.done::before { content: '✓'; background: var(--gold-soft); color: var(--gold); }
+.steps li.active::before { background: var(--sky); color: #fff; box-shadow: 0 0 0 4px rgba(77, 183, 254, 0.2); }
+.steps li.done::before { content: '✓'; background: var(--ok-soft); color: var(--ok-ink); }
 
 .step-title { font-size: 20px; margin-bottom: 4px; }
 .step-sub { margin: 0 0 16px; }
@@ -37,7 +42,7 @@
   cursor: pointer; transition: border-color 0.15s, background 0.15s;
 }
 .option:hover { border-color: var(--line-2); background: var(--hover); }
-.option.selected { border-color: var(--gold); background: var(--gold-soft); }
+.option.selected { border-color: var(--sky); background: var(--gold-soft); }
 .option .info { flex: 1; min-width: 0; }
 .option .name { font-weight: 600; }
 .option .desc { font-size: 13px; color: var(--muted); }
@@ -72,7 +77,7 @@
   border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 9px 0;
   cursor: pointer; font-weight: 600; font-variant-numeric: tabular-nums; transition: border-color 0.15s;
 }
-.slot:hover { border-color: var(--gold); }
+.slot:hover { border-color: var(--sky); }
 .slot.selected { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
 
 .summary { background: var(--card-2); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
@@ -90,7 +95,7 @@
 }
 .code {
   display: inline-block; font-family: ui-monospace, Consolas, monospace; font-size: 22px; letter-spacing: 3px;
-  background: var(--gold-soft); color: var(--gold); padding: 6px 14px; border-radius: 10px; margin: 6px 0 14px;
+  background: var(--gold-soft); color: var(--info-ink); padding: 6px 14px; border-radius: 10px; margin: 6px 0 14px;
 }
 .success .summary { text-align: left; }
 .stack { display: flex; flex-direction: column; gap: 8px; }

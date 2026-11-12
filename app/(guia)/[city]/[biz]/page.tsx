@@ -6,9 +6,9 @@ import { connection } from 'next/server';
 import { getBusiness, getCity, searchBusinesses, openStatus } from '@/lib/server/c10';
 import { nowMin, todayWeekday } from '@/lib/server/time';
 import { Shell, ShellSkeleton } from '@/components/guide/Shell';
-import { BizCard } from '@/components/guide/BizCard';
+import { BizCard, SectionTitle } from '@/components/guide/BizCard';
 import { Icon, CategoryIcon } from '@/components/Icon';
-import { WEEKDAYS, initials, whatsLink } from '@/lib/format';
+import { WEEKDAYS, fmtPhone, initials, whatsLink } from '@/lib/format';
 import type { Business, City } from '@/lib/types';
 
 type Props = PageProps<'/[city]/[biz]'>;
@@ -63,7 +63,7 @@ async function Content({ params }: Pick<Props, 'params'>) {
 
   const mobileBar = (
     <div className="mobile-bar">
-      {b.booking_enabled && <a className="btn btn-accent" href={bookingHref}><Icon name="calendar" size={16} /> Agendar</a>}
+      {b.booking_enabled && <a className="btn btn-navy" href={bookingHref}><Icon name="calendar" size={16} /> Agendar</a>}
       {whatsHref && <a className="btn btn-whats" target="_blank" rel="noopener" href={whatsHref}><Icon name="chat" size={16} /> WhatsApp</a>}
       <a className="btn" target="_blank" rel="noopener" href={mapsLink(b, city)}><Icon name="route" size={16} />{b.booking_enabled && whatsHref ? '' : ' Rota'}</a>
     </div>
@@ -73,32 +73,43 @@ async function Content({ params }: Pick<Props, 'params'>) {
     <Shell city={city} mobileBar={mobileBar}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <section className="biz-hero" style={{ '--c': b.category_color } as CSSProperties}>
-        <div className="biz-banner">
-          <nav className="crumbs" aria-label="Navegação"><div className="container">
-            <Link href={`/${city.slug}`}>{city.name}</Link> <span>/</span> <Link href={`/${city.slug}/categoria/${b.category_slug}`}>{b.category_name}</Link>
-          </div></nav>
-          <span className="big-ic"><CategoryIcon slug={b.category_slug} size={260} /></span>
-        </div>
-        <div className="container">
-          <div className="biz-head">
-            <div className="biz-avatar lg">{initials(b.name)}</div>
-            <div>
-              <h1>{b.name}</h1>
-              <div className="chips">
-                <span className="chip"><CategoryIcon slug={b.category_slug} size={14} /> {b.category_name}</span>
-                {b.neighborhood && <span className="chip"><Icon name="pin" size={14} /> {b.neighborhood}</span>}
-                <span className="chip"><span className={`status ${st.open ? 'open' : ''}`}>{st.label}</span></span>
-                {b.featured && <span className="chip"><Icon name="star" size={14} /> Destaque</span>}
-              </div>
+        <span className="big-ic" aria-hidden="true"><CategoryIcon slug={b.category_slug} size={340} /></span>
+        <div className="container biz-hero-inner">
+          <div className="biz-hero-main">
+            <span className="hero-line left" />
+            <h1>{b.name}</h1>
+            <div className="biz-contacts">
+              {b.address && <span><Icon name="pin" size={15} /> {b.address}{b.neighborhood ? `, ${b.neighborhood}` : ''}</span>}
+              {b.phone && <span><Icon name="chat" size={15} /> {fmtPhone(b.phone)}</span>}
+              {b.instagram && <span><Icon name="instagram" size={15} /> @{b.instagram}</span>}
+            </div>
+            <div className="biz-hero-foot">
+              <Link href={`/${city.slug}/categoria/${b.category_slug}`} className="hero-cat"><span className="cat-dot"><CategoryIcon slug={b.category_slug} size={16} /></span>{b.category_name}</Link>
+              <span className={`state ${st.open ? 'open' : ''}`}><Icon name="clock" size={13} /> {st.label}</span>
+              {b.featured && <span className="state star"><Icon name="star" size={13} /> Destaque</span>}
             </div>
           </div>
+          <div className="biz-hero-avatar">{initials(b.name)}</div>
         </div>
       </section>
+      <nav className="biz-tabs" aria-label="Seções">
+        <div className="container biz-tabs-inner">
+          {b.description && <a href="#sobre">Sobre</a>}
+          <a href="#horarios">Horários</a>
+          {b.address && <a href="#local">Localização</a>}
+          <div className="spacer" />
+          {b.booking_enabled && <a className="btn btn-navy btn-sm hide-sm" href={bookingHref}><Icon name="calendar" size={15} /> Agendar</a>}
+          {whatsHref && <a className="btn btn-sky btn-sm hide-sm" target="_blank" rel="noopener" href={whatsHref}><Icon name="chat" size={15} /> WhatsApp</a>}
+        </div>
+      </nav>
+      <div className="container crumbs">
+        <Link href={`/${city.slug}`}>Início</Link> <Icon name="chevron" size={12} /> <Link href={`/${city.slug}/categoria/${b.category_slug}`}>{b.category_name}</Link> <Icon name="chevron" size={12} /> <span>{b.name}</span>
+      </div>
 
-      <main className="container biz-layout" style={{ paddingBottom: 72 }}>
+      <main className="container biz-layout">
         <div>
-          {b.description && <div className="panel"><h2>Sobre</h2><p>{b.description}</p></div>}
-          <div className="panel">
+          {b.description && <div className="panel" id="sobre"><h2>Sobre</h2><p>{b.description}</p></div>}
+          <div className="panel" id="horarios">
             <h2><Icon name="clock" size={20} /> Horário de funcionamento</h2>
             <table className="hours"><tbody>
               {[1, 2, 3, 4, 5, 6, 0].map((d) => {
@@ -113,7 +124,7 @@ async function Content({ params }: Pick<Props, 'params'>) {
             </tbody></table>
           </div>
           {b.address && (
-            <div className="panel">
+            <div className="panel" id="local">
               <h2><Icon name="pin" size={20} /> Localização</h2>
               <div className="map">
                 <iframe title="Mapa" loading="lazy" referrerPolicy="no-referrer-when-downgrade"
@@ -122,8 +133,8 @@ async function Content({ params }: Pick<Props, 'params'>) {
             </div>
           )}
           {related.length > 0 && (
-            <section className="block" style={{ marginTop: 36 }}>
-              <div className="sec-head"><div><span className="kicker">Veja também</span><h2>Outros em {b.category_name.toLowerCase()}</h2></div></div>
+            <section className="related">
+              <SectionTitle bg="Veja também" title={`Outros em ${b.category_name.toLowerCase()}`} />
               <div className="biz-grid">{related.map((r) => <BizCard key={r.id} b={r} city={city} status={openStatus(r.hours, wd, now)} />)}</div>
             </section>
           )}
@@ -133,7 +144,7 @@ async function Content({ params }: Pick<Props, 'params'>) {
           <div className="panel sticky">
             <div className="side-title">{b.booking_enabled ? 'Agende seu horário' : 'Fale com o comércio'}</div>
             <p className="side-sub">{b.booking_enabled ? 'Escolha o serviço, o profissional e o horário em menos de um minuto.' : 'Tire dúvidas, faça pedidos ou peça orçamento.'}</p>
-            {b.booking_enabled && <a className="btn btn-accent btn-block btn-lg" href={bookingHref}><Icon name="calendar" size={18} /> Agendar online</a>}
+            {b.booking_enabled && <a className="btn btn-navy btn-block btn-lg" href={bookingHref}><Icon name="calendar" size={18} /> Agendar online</a>}
             {whatsHref && <a className="btn btn-whats btn-block" target="_blank" rel="noopener" href={whatsHref}><Icon name="chat" size={17} /> Chamar no WhatsApp</a>}
             <a className="btn btn-block" target="_blank" rel="noopener" href={mapsLink(b, city)}><Icon name="route" size={17} /> Como chegar</a>
             {b.instagram && <a className="btn btn-block" target="_blank" rel="noopener" href={`https://instagram.com/${b.instagram}`}><Icon name="instagram" size={17} /> @{b.instagram}</a>}

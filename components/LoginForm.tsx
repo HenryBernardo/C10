@@ -66,7 +66,7 @@ export function LoginForm({ area }: { area: LoginArea }) {
         {error && <div className="err" role="alert">{error}</div>}
         <label>E-mail ou login<input name="email" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required autoFocus /></label>
         <label>Senha<input name="password" type="password" autoComplete="current-password" required /></label>
-        <button className="btn btn-accent btn-lg" disabled={busy}>{busy ? 'Entrando…' : 'Entrar'}</button>
+        <button className="btn btn-navy btn-lg" disabled={busy}>{busy ? 'Entrando…' : 'Entrar'}</button>
       </form>
       <p className="back">{cfg.other.text} <Link href={cfg.other.href}>Entre por aqui</Link></p>
       <Link className="back" href="/">← Voltar ao guia</Link>

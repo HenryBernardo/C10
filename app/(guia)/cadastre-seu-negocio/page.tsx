@@ -74,7 +74,7 @@ async function Content({ searchParams }: Pick<PageProps<'/cadastre-seu-negocio'>
                 <label>WhatsApp<input name="phone" required inputMode="tel" autoComplete="tel" placeholder="(45) 99999-9999" maxLength={20} /></label>
               </div>
               <label>Mensagem (opcional)<textarea name="message" rows={3} maxLength={500} placeholder="Ex.: quero agenda online para minha barbearia" /></label>
-              <button className="btn btn-accent btn-lg">Enviar cadastro <Icon name="arrow" size={16} /></button>
+              <button className="btn btn-navy btn-lg">Enviar cadastro <Icon name="arrow" size={16} /></button>
             </form>
           )}
         </div>

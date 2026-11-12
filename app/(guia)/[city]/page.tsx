@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { connection } from 'next/server';
+import { redirect } from 'next/navigation';
 import { getCity, getCityCategories } from '@/lib/server/c10';
 import { CityView } from '@/components/guide/CityView';
 import { ShellSkeleton } from '@/components/guide/Shell';
@@ -26,5 +27,11 @@ export default function CityPage({ params, searchParams }: PageProps<'/[city]'>)
 
 async function Content({ params, searchParams }: Pick<PageProps<'/[city]'>, 'params' | 'searchParams'>) {
   const [{ city }, sp] = await Promise.all([params, searchParams]);
+  // A busca do topo manda a categoria escolhida em ?categoria=; leva para a página da categoria.
+  const cat = typeof sp.categoria === 'string' ? sp.categoria.replace(/[^a-z0-9-]/g, '') : '';
+  if (cat) {
+    const q = typeof sp.q === 'string' ? sp.q.trim() : '';
+    redirect(`/${city}/categoria/${cat}${q ? `?q=${encodeURIComponent(q)}` : ''}#lista`);
+  }
   return <CityView citySlug={city} q={typeof sp.q === 'string' ? sp.q : ''} />;
 }
